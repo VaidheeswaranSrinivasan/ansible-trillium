@@ -1,0 +1,64 @@
+---
+- name: "Create group for {{ trillium_user }}"
+  group: 
+    name: "{{ trillium_user }}"
+    state: present
+    
+- name: "Create user for {{ trillium user }}"
+  user:
+    name: "{{ trillium_user }}"
+    state: present
+    group: "{{ trillium_user }}"
+    shell: /bin/bash
+    
+- name: Verify the Trillium availability
+  stat:
+    path: "{{ trillium_install_dir }}/trillium-{{ trillium_ver }}"
+  register: trillium_avail
+
+- name: Download Trillium zip
+  get_url: 
+    url: "{{ trillium_url }}"
+    dest: "{{ trillium_install_dir }}"
+    owner: "{{ trillium_user }}"
+    group: "{{ trillium_user }}"
+    mode: 0644
+  when: not trillium_avail.stat.exists
+
+- name: "Extract Trillium"
+  unarchive: 
+    src: "{{ trillium_install_dir }}"
+    dest: "{{ trillium_install_dir }}/trillium-{{ trillium_ver }}"
+    owner: "{{ trillium_user }}"
+    group: "{{ trillium_user }}"
+    mode: 0755
+  when: not trillium_avail.stat.exists
+
+- name: "Set TRIL_SERVER_MACHINE_NAME to localhost"
+  replace: 
+    dest: "{{ trillium_install_dir }}/trillium-{{ trillium_ver }}/bin/AMIT.properties"
+    regexp: 'TRIL_SERVER_MACHINE_NAME                    = //172.28.128.5' 
+    replace: 'TRIL_SERVER_MACHINE_NAME                   = //localhost'
+    backup: yes
+
+- name: "Install dependencies - Ubuntu"
+  apt: 
+    name: libc6-i386
+    state: latest    
+    update_cache: yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  
+- name: "Install dependencies - CentOS"
+  apt: 
+    name: glibc-devel.i686
+    state: latest    
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RHEL'
+  
+  
+- name: "Create link for Trillium log"
+  file:
+    src: "{{ trillium_install_dir }}/trillium-{{ trillium_ver }}/logs/Trillium_app.log"
+    dest: "/dev/stdout"
+    state: link
+    owner: "root"
+    group: "root"

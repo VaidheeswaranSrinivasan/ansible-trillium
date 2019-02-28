@@ -1,0 +1,5 @@
+---
+# vars for trillium server
+trillium_user: tril-man
+trillium_group: tril-man
+trillium_install_dir: /opt

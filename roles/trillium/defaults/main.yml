@@ -1,0 +1,4 @@
+---
+# trillium version
+trillium_ver: "1.0"
+trillium_url: "http://aimiarepo.lmuk.local:8080/repository/internal/tril/trillium/{{ trillium_ver }}/trillium-{{ trillium_ver }}.tgz"
