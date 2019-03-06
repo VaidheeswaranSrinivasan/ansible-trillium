@@ -1,0 +1,9 @@
+---
+# Playbook to install one HTTPD and multiple TOMCAT servers
+- hosts: localhost
+  connection: local
+  become_method: sudo
+  become: yes
+  gather_facts: yes
+  roles:
+  - {role: trillium, tags: trillium}
