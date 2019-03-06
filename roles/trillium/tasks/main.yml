@@ -3,6 +3,7 @@
   group: 
     name: "{{ trillium_user }}"
     state: present
+  tag: trillium
     
 - name: "Create user for {{ trillium user }}"
   user:
@@ -10,11 +11,13 @@
     state: present
     group: "{{ trillium_user }}"
     shell: /bin/bash
+  tag: trillium
     
 - name: Verify the Trillium availability
   stat:
     path: "{{ trillium_install_dir }}/trillium-{{ trillium_ver }}"
   register: trillium_avail
+  tag: trillium
 
 - name: Download Trillium zip
   get_url: 
@@ -24,6 +27,7 @@
     group: "{{ trillium_user }}"
     mode: 0644
   when: not trillium_avail.stat.exists
+  tag: trillium
 
 - name: "Extract Trillium"
   unarchive: 
@@ -33,6 +37,7 @@
     group: "{{ trillium_user }}"
     mode: 0755
   when: not trillium_avail.stat.exists
+  tag: trillium
 
 - name: "Set TRIL_SERVER_MACHINE_NAME to localhost"
   replace: 
@@ -40,6 +45,7 @@
     regexp: 'TRIL_SERVER_MACHINE_NAME                    = //172.28.128.5' 
     replace: 'TRIL_SERVER_MACHINE_NAME                   = //localhost'
     backup: yes
+  tag: trillium
 
 - name: "Install dependencies - Ubuntu"
   apt: 
@@ -47,13 +53,14 @@
     state: latest    
     update_cache: yes
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  tag: trillium
   
 - name: "Install dependencies - CentOS"
   apt: 
     name: glibc-devel.i686
     state: latest    
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'RHEL'
-  
+  tag: trillium
   
 - name: "Create link for Trillium log"
   file:
@@ -62,3 +69,4 @@
     state: link
     owner: "root"
     group: "root"
+  tag: trillium
